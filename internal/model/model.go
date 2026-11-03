@@ -1,12 +1,23 @@
 package model
 
 type Application struct {
-	Name      string                 `yaml:"name" json:"name"`
-	Apps      map[string]Workload    `yaml:"apps,omitempty" json:"apps,omitempty"`
-	Stateful  map[string]Workload    `yaml:"stateful,omitempty" json:"stateful,omitempty"`
-	Jobs      map[string]Workload    `yaml:"jobs,omitempty" json:"jobs,omitempty"`
-	Resources Resources              `yaml:"resources" json:"resources"`
-	Overrides map[string]Environment `yaml:"overrides,omitempty" json:"overrides,omitempty"`
+	WorkloadSets `yaml:",inline"`
+	Resources    Resources              `yaml:"resources" json:"resources"`
+	Overrides    map[string]Environment `yaml:"overrides,omitempty" json:"overrides,omitempty"`
+}
+
+type WorkloadSets struct {
+	Apps     Workloads `yaml:"apps,omitempty" json:"apps,omitempty"`
+	Stateful Workloads `yaml:"stateful,omitempty" json:"stateful,omitempty"`
+	Jobs     Workloads `yaml:"jobs,omitempty" json:"jobs,omitempty"`
+}
+
+func (w WorkloadSets) Groups() map[string]Workloads {
+	return map[string]Workloads{
+		"apps":     w.Apps,
+		"stateful": w.Stateful,
+		"jobs":     w.Jobs,
+	}
 }
 
 type Workload struct {
@@ -21,6 +32,8 @@ type Workload struct {
 	Mounts   map[string]string `yaml:"mounts,omitempty" json:"mounts,omitempty"`
 	Routes   []Route           `yaml:"routes,omitempty" json:"routes,omitempty"`
 }
+
+type Workloads map[string]Workload
 
 type Resources struct {
 	Volumes map[string]Volume `yaml:"volumes,omitempty" json:"volumes,omitempty"`
@@ -48,10 +61,8 @@ type Route struct {
 }
 
 type Environment struct {
-	Apps      map[string]Workload `yaml:"apps,omitempty" json:"apps,omitempty"`
-	Stateful  map[string]Workload `yaml:"stateful,omitempty" json:"stateful,omitempty"`
-	Jobs      map[string]Workload `yaml:"jobs,omitempty" json:"jobs,omitempty"`
-	Resources *Resources          `yaml:"resources,omitempty" json:"resources,omitempty"`
+	WorkloadSets `yaml:",inline"`
+	Resources    *Resources `yaml:"resources,omitempty" json:"resources,omitempty"`
 }
 
 type Deployment struct {

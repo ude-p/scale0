@@ -1,6 +1,11 @@
 package deployments
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
+
+const defaultEnvironment = "default"
 
 type Handler struct {
 	svc *Service
@@ -15,4 +20,23 @@ func (h *Handler) Register(mux *http.ServeMux) {
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+	var req CreateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if req.Environment == "" {
+		req.Environment = defaultEnvironment
+	}
+
+	if err := h.svc.Validate(req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if _, err := h.svc.Resolve(req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 }
