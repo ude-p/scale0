@@ -10,8 +10,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/ude-p/scale0/api/v1alpha1"
 )
@@ -28,10 +28,10 @@ type kube struct {
 	spec v1alpha1.S0Spec
 }
 
-func KubernetesObjects(app v1alpha1.S0) []client.Object {
+func KubernetesObjects(app v1alpha1.S0) []runtime.Object {
 	r := kube{app: app.Name, env: app.Namespace, spec: app.Spec}
 
-	objects := make([]client.Object, 0, 2*len(app.Spec.Workload)+len(app.Spec.Volume)+len(app.Spec.Config)+len(app.Spec.Secret))
+	objects := make([]runtime.Object, 0, 2*len(app.Spec.Workload)+len(app.Spec.Volume)+len(app.Spec.Config)+len(app.Spec.Secret))
 	for _, name := range slices.Sorted(maps.Keys(app.Spec.Volume)) {
 		objects = append(objects, r.volumeClaim(name, app.Spec.Volume[name]))
 	}

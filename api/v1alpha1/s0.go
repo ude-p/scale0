@@ -1,6 +1,3 @@
-// Package v1alpha1 contains the apps.s0 API types.
-// +kubebuilder:object:generate=true
-// +groupName=apps.s0
 package v1alpha1
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,6 +11,14 @@ type S0 struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec S0Spec `json:"spec"`
+}
+
+// +kubebuilder:object:root=true
+type S0List struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	Items []S0 `json:"items"`
 }
 
 type S0Spec struct {
